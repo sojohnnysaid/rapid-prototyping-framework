@@ -11,7 +11,7 @@ import { ChangeApprovalStory } from './change-request.story';
 export default function ProgramOfficerApprovalPage() {
   // Get user context for authentication
   const { user } = useContext(UserContext);
-  const { currentStep, setCurrentStep } = useContext(ProcessStepContext);
+  const { currentStep, setCurrentStep, markStepActionable } = useContext(ProcessStepContext);
   
   // State for UI and data
   const [changeRequests, setChangeRequests] = useState([]);
@@ -77,7 +77,8 @@ export default function ProgramOfficerApprovalPage() {
       const data = await response.json();
       setChangeRequests(data);
       
-      // Set step to 1 (reviewing requests)
+      // Mark next step as actionable and move to it
+      markStepActionable(1);
       setCurrentStep(1);
     } catch (err) {
       console.error('Error fetching change requests:', err);
@@ -90,10 +91,12 @@ export default function ProgramOfficerApprovalPage() {
   // Step 2: Select a change request to review
   const selectChangeRequest = (request) => {
     setSelectedRequest(request);
+    // Mark next step as actionable and move to it
+    markStepActionable(2);
     setCurrentStep(2);
   };
   
-  // Step 3: Open approval/rejection modal
+  // Step 3: Open approval/rejection modal with feedback (combined step)
   const openApprovalModal = () => {
     if (!selectedRequest) {
       setError('Please select a change request first');
@@ -101,10 +104,12 @@ export default function ProgramOfficerApprovalPage() {
     }
     
     setShowApprovalModal(true);
-    setCurrentStep(3);
+    // Mark this combined step as actionable
+    markStepActionable(2);
+    setCurrentStep(2);
   };
   
-  // Step 4: Process approval or rejection
+  // Process approval or rejection with feedback (combined step)
   const handleApprovalSubmit = async (e) => {
     e.preventDefault();
     
@@ -185,8 +190,10 @@ export default function ProgramOfficerApprovalPage() {
       setApprovalNotes('');
       setApprovalDecision('');
       
-      // Move to step 4
-      setCurrentStep(4);
+      // Update to mark completion when decision is made - no need to go to next step since we removed it
+      // Instead, this marks the journey as completed
+      markStepActionable(3); // Mark completion step as actionable
+      setCurrentStep(3);     // Move to completion step
       
       // Refresh the list of pending requests
       fetchPendingRequests();
@@ -342,10 +349,10 @@ export default function ProgramOfficerApprovalPage() {
         </StepSection>
       )}
       
-      {/* Step 3: Review selected change request */}
+      {/* Step 2: Review selected change request and make decision with feedback (combined) */}
       {selectedRequest && (
         <StepSection stepNumber={2}>
-          <StepHeader stepNumber={3} title={ChangeApprovalStory.steps[1]} />
+          <StepHeader stepNumber={3} title={ChangeApprovalStory.steps[2]} />
           <div style={{ 
             marginTop: '1rem',
             padding: '1.5rem',
@@ -395,28 +402,20 @@ export default function ProgramOfficerApprovalPage() {
                   cursor: 'pointer'
                 }}
               >
-                Make Decision
+                Make Decision with Feedback
               </button>
             </div>
           </div>
         </StepSection>
       )}
       
-      {/* Step 5: Confirmation after decision */}
-      {currentStep >= 4 && (
-        <StepSection stepNumber={4}>
-          <StepHeader stepNumber={5} title={ChangeApprovalStory.steps[4]} />
-          <div style={{ marginTop: '1rem' }}>
-            <p>The change request has been processed. All relevant systems have been updated.</p>
-          </div>
-        </StepSection>
-      )}
+      {/* We removed the confirmation step completely */}
       
       {/* Approval Modal */}
       {showApprovalModal && selectedRequest && (
         <Modal onClose={() => setShowApprovalModal(false)}>
           <div style={{ padding: '1.5rem' }}>
-            <h3>Make Decision</h3>
+            <h3>Make Decision with Feedback</h3>
             <p>Change request: <strong>{selectedRequest.title}</strong></p>
             
             <Form onSubmit={handleApprovalSubmit} autoComplete="off">

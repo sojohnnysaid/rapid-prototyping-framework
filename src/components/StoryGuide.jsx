@@ -1,6 +1,6 @@
 // src/components/StoryGuide.jsx
-import React, { useContext, useState, useRef, useEffect } from 'react'
-import { ProcessStepContext } from '../context/ProcessStepContext'
+import React, { useState, useRef, useEffect } from 'react'
+import { useProcessSteps } from '../context/ProcessStepContext'
 import { Easing, Duration } from '../hooks/useTransitions'
 
 // Check if a step array has the "User Journey Completed" final step
@@ -18,16 +18,25 @@ const ensureCompletionStep = (storySteps) => {
   return [...storySteps, 'User Journey Completed'];
 };
 
+// Filter out non-actionable steps from the story
+const filterNonActionableSteps = (steps) => {
+  // Remove "Wait for" steps that aren't actionable by users
+  return steps.filter(step => !step.toLowerCase().startsWith('wait for'));
+};
+
 export default function StoryGuide({ story, compactMode = false }) {
-  // Use the global process step context
-  const { currentStep, setCurrentStep } = useContext(ProcessStepContext)
+  // Use our custom hook for process steps
+  const { currentStep, setCurrentStep, isStepActionable, isStepTriggered, actionableSteps } = useProcessSteps();
   // State to track if the guide is expanded to show all steps
   const [expanded, setExpanded] = useState(false)
 
   if (!story) return <p>No business rule instructions available.</p>
   
+  // Filter out non-actionable steps first
+  const actionableOnlySteps = filterNonActionableSteps(story.steps);
+  
   // Ensure the story has a completion step
-  const enhancedSteps = ensureCompletionStep(story.steps);
+  const enhancedSteps = ensureCompletionStep(actionableOnlySteps);
   
   // Create an enhanced story object with completion step added
   const enhancedStory = { 
@@ -381,19 +390,70 @@ export default function StoryGuide({ story, compactMode = false }) {
           {expanded ? (
             // Show all steps when expanded
             <ol style={{ paddingLeft: '1.5rem', margin: '1rem 0' }}>
-              {enhancedSteps.map((step, index) => (
-                <li key={index} style={{
-                  fontWeight: index === currentStep ? 'bold' : 'normal',
-                  color: index === currentStep ? '#2196f3' : 'inherit',
-                  padding: '0.25rem 0',
-                  cursor: index === enhancedSteps.length - 1 ? 'default' : 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                  onClick={() => index !== enhancedSteps.length - 1 && setCurrentStep(index)}
-                >
-                  {step}
-                </li>
-              ))}
+              {enhancedSteps.map((step, index) => {
+                // Determine step status
+                const stepActionable = actionableSteps.includes(index);
+                const isTriggered = isStepTriggered(index);
+                const isLastStep = index === enhancedSteps.length - 1;
+                const isActiveStep = index === currentStep;
+                
+                return (
+                  <li key={index} style={{
+                    fontWeight: isActiveStep ? 'bold' : 'normal',
+                    color: isActiveStep 
+                      ? '#2196f3' 
+                      : !stepActionable && !isLastStep
+                        ? '#9e9e9e' // Gray out non-actionable steps  
+                        : 'inherit',
+                    padding: '0.25rem 0',
+                    cursor: stepActionable && !isLastStep ? 'pointer' : 'default',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                    onClick={() => stepActionable && !isLastStep && setCurrentStep(index)}
+                  >
+                    <span>{step}</span>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      {/* Triggered status */}
+                      {!isLastStep && (
+                        <span style={{ 
+                          fontSize: '0.7rem', 
+                          color: isTriggered ? '#4caf50' : '#f44336',
+                          backgroundColor: isTriggered ? '#e8f5e9' : '#ffebee',
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '3px'
+                        }}>
+                          <span style={{ 
+                            fontSize: '0.7rem',
+                            lineHeight: 1
+                          }}>
+                            {isTriggered ? '✓' : '✗'}
+                          </span>
+                          Trigger
+                        </span>
+                      )}
+                      
+                      {/* Actionable status */}
+                      {stepActionable && !isLastStep && (
+                        <span style={{ 
+                          fontSize: '0.7rem', 
+                          color: '#2196f3',
+                          backgroundColor: '#e3f2fd',
+                          padding: '1px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          Ready
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           ) : (
             // Show only the current step

@@ -340,16 +340,16 @@ function AppLayout() {
   // Use the location hook from React Router
   const location = useLocation()
   
-  // We'll use the ProcessStepContext exported from the provider directly
-  // instead of creating our own state
+  // Access the context to reset steps manually when routes change
+  const { resetSteps } = useContext(ProcessStepContext)
   
-  // Access the context
-  const { setCurrentStep } = useContext(ProcessStepContext)
-  
-  // Reset step when changing paths
-  React.useEffect(() => {
-    setCurrentStep(0)
-  }, [location.pathname, setCurrentStep])
+  // Reset steps when location changes (route navigation)
+  useEffect(() => {
+    // Only reset on actual route changes (not on initial render)
+    if (location.pathname) {
+      resetSteps();
+    }
+  }, [location.pathname, resetSteps])
   
   // Import the story content lazily
   const [reviewerAssignmentStory, setReviewerAssignmentStory] = useState(null)

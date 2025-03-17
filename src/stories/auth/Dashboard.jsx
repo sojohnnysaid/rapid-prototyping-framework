@@ -221,34 +221,9 @@ export default function Dashboard() {
   return (
     <div style={{ padding: '1.5rem' }}>
       <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
         marginBottom: '2rem'
       }}>
-        <h2 style={{ margin: 0 }}>Dashboard</h2>
-        <div style={{ 
-          backgroundColor: '#e3f2fd', 
-          padding: '0.75rem 1.25rem', 
-          borderRadius: '30px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          <span style={{ fontWeight: 'bold' }}>{user.name}</span>
-          <span style={{ 
-            backgroundColor: '#2196f3',
-            color: 'white',
-            padding: '0.25rem 0.75rem',
-            borderRadius: '20px',
-            fontSize: '0.8rem'
-          }}>
-            {user.role === 'admin' ? 'Administrator' : 
-             user.role === 'transcriptReviewer' ? 'Transcript Reviewer' :
-             user.role === 'applicantReviewer' ? 'Applicant Reviewer' :
-             'Program Officer'}
-          </span>
-        </div>
+        <h2>Dashboard</h2>
       </div>
       
       {/* Stats Row */}

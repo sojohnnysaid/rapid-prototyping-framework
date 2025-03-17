@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
-import { ProcessStepContext } from '../context/ProcessStepContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { useProcessSteps } from '../context/ProcessStepContext';
 import { Easing, Duration } from '../hooks/useTransitions';
 
 /**
@@ -12,7 +12,7 @@ import { Easing, Duration } from '../hooks/useTransitions';
  * @returns {JSX.Element}
  */
 const StepSection = ({ stepNumber, children }) => {
-  const { currentStep } = useContext(ProcessStepContext);
+  const { currentStep } = useProcessSteps();
   const sectionRef = useRef(null);
   const [wasActive, setWasActive] = useState(false);
   
@@ -68,8 +68,7 @@ const StepSection = ({ stepNumber, children }) => {
       opacity ${Duration.normal}ms ${Easing.smooth}
     `,
     position: 'relative',
-    willChange: 'transform, opacity, background-color, box-shadow',
-    transition: 'background-color 0.4s ease-in-out, border-left 0.4s ease, box-shadow 0.4s ease'
+    willChange: 'transform, opacity, background-color, box-shadow'
   };
   
   // Instead of animating the entire section, we'll let individual elements 
@@ -127,7 +126,7 @@ const StepSection = ({ stepNumber, children }) => {
  */
 export const StepHeader = ({ stepNumber, title }) => {
   const headerRef = useRef(null);
-  const { currentStep } = useContext(ProcessStepContext);
+  const { currentStep } = useProcessSteps();
   const isActive = currentStep === stepNumber - 1;
 
   // Apply animation when step becomes active

@@ -11,7 +11,7 @@ import { ChangeRequestStory } from './change-request.story';
 export default function ApplicantChangeRequestPage() {
   // Get user context for authentication
   const { user } = useContext(UserContext);
-  const { currentStep, setCurrentStep } = useContext(ProcessStepContext);
+  const { currentStep, setCurrentStep, markStepActionable } = useContext(ProcessStepContext);
   
   // State for form and UI
   const [applicants, setApplicants] = useState([]);
@@ -84,7 +84,8 @@ export default function ApplicantChangeRequestPage() {
       const data = await response.json();
       setApplicants(data);
       
-      // Move to next step
+      // Mark next step as actionable and move to it
+      markStepActionable(1);
       setCurrentStep(1);
     } catch (err) {
       console.error('Error fetching applicants:', err);
@@ -104,14 +105,17 @@ export default function ApplicantChangeRequestPage() {
       currentValue: applicant.eligibilityStatus
     });
     
-    // Move to step 2
+    // Mark next step as actionable and move to it
+    markStepActionable(2);
     setCurrentStep(2);
   };
   
   // Step 3: Show the change request form
   const openChangeRequestForm = () => {
     setShowModal(true);
-    setCurrentStep(3);
+    // Since the form is now step 2 after removing Wait step
+    markStepActionable(2);
+    setCurrentStep(2);
   };
   
   // Step 4: Submit change request
@@ -176,8 +180,13 @@ export default function ApplicantChangeRequestPage() {
         requestedValue: ''
       });
       
-      // Advance to step 4
-      setCurrentStep(4);
+      // Make the completion step actionable once we've submitted the request
+      // Since we removed 'Wait for program officer review', we now go to step 3 then completion
+      markStepActionable(3); // View approval status
+      markStepActionable(4); // Complete journey step
+      
+      // Advance to step 3 (skipping the removed "Wait for" step)
+      setCurrentStep(3);
       
       // Fetch my current change requests
       fetchMyChangeRequests();
@@ -357,7 +366,7 @@ export default function ApplicantChangeRequestPage() {
         </StepSection>
       )}
       
-      {/* Step 3: Fill out change request details */}
+      {/* Step 2: Fill out change request details */}
       {selectedApplicant && (
         <StepSection stepNumber={2}>
           <StepHeader stepNumber={3} title={ChangeRequestStory.steps[0]} />
@@ -384,8 +393,8 @@ export default function ApplicantChangeRequestPage() {
         </StepSection>
       )}
       
-      {/* Step 4: View your change requests */}
-      {currentStep >= 3 && (
+      {/* Step 3: View your change requests */}
+      {currentStep >= 2 && (
         <StepSection stepNumber={3}>
           <StepHeader stepNumber={4} title={ChangeRequestStory.steps[2]} />
           <div style={{ marginTop: '1rem' }}>

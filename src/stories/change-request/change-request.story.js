@@ -10,7 +10,6 @@ export const ChangeRequestStory = {
   steps: [
     'Fill out change request form',
     'Submit change request for approval',
-    'Wait for program officer review',
     'View approval status',
     'Implement approved changes'
   ]
@@ -21,8 +20,6 @@ export const ChangeApprovalStory = {
   steps: [
     'Review incoming change requests',
     'Evaluate request details and impact',
-    'Make approval decision',
-    'Provide feedback on the decision',
-    'Confirm changes are implemented'
+    'Make approval decision with feedback'
   ]
 }

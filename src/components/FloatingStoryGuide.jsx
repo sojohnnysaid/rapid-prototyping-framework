@@ -1,6 +1,7 @@
 // src/components/FloatingStoryGuide.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import StoryGuide from './StoryGuide';
+import { useProcessSteps } from '../context/ProcessStepContext';
 
 /**
  * FloatingStoryGuide - Wraps StoryGuide component and adds fixed footer functionality
