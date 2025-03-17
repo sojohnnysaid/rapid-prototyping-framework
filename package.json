@@ -1,0 +1,33 @@
+{
+  "name": "rapid-prototyping-framework",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "create-entity": "node src/cli/create-entity.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.0",
+    "sakura.css": "^1.5.0"
+  },
+  "devDependencies": {
+    "@mswjs/data": "^0.16.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "msw": "^2.7.3",
+    "vite": "^6.2.2"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}
