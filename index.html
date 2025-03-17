@@ -5,20 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NSF GRFP Prototype</title>
     <style>
+        /* Modern responsive layout settings */
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 60px;
+            --content-max-width: 1600px;
+            --text-content-width: 800px;
+            --primary-color: #2196f3;
+            --primary-light: #e3f2fd;
+            --transition-speed: 0.3s;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
         /* Override Sakura CSS max-width setting */
         body {
-            max-width: 48em !important;
+            max-width: none !important;
+            padding: 0 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-width: 1024px; /* Minimum width as requested */
+        }
+
+        #root {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Container for tables and data-heavy content */
+        .wide-container {
+            width: 100%;
+            max-width: var(--content-max-width);
             margin: 0 auto;
-            /* Reset the default Sakura CSS padding to use the full space */
-            padding: 0;
         }
-
-        #root{
-            padding-top: 20px;
+        
+        /* Container for text content */
+        .text-container {
+            width: 100%;
+            max-width: var(--text-content-width);
+            margin: 0 auto;
         }
-
-        h1{
-            padding-bottom: 50px;
+        
+        /* Animation settings */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Responsive behavior */
+        @media (max-width: 1200px) {
+            .wide-container {
+                padding: 0 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            html, body {
+                min-width: 320px; /* Allow smaller widths on mobile */
+            }
         }
     </style>
 </head>

@@ -165,7 +165,7 @@ function Eligibility() {
   ]
 
   return (
-    <div>
+    <div className="wide-container">
       <h2>Eligibility Screening</h2>
       
       {/* Step 1: Load applicant data */}
@@ -383,18 +383,8 @@ function AppLayout() {
     } else if (location.pathname === '/change-approval') {
       return <FloatingStoryGuide story={ChangeApprovalStory} />
     }
-    return <p>Select a process to see business rules</p>
+    return null;
   }
-  
-  // Import our dynamic Sidebar component
-  const Sidebar = React.lazy(() => import('./components/Sidebar'))
-  
-  // Sidebar content with the dynamic component
-  const sidebarContent = (
-    <Suspense fallback={<div>Loading sidebar...</div>}>
-      <Sidebar />
-    </Suspense>
-  )
   
   // Lazy load components
   const ReviewerAssignmentPage = React.lazy(() => 
@@ -428,7 +418,32 @@ function AppLayout() {
 
   // Main content (routes)
   const mainContent = (
-    <Suspense fallback={<div>Loading page...</div>}>
+    <Suspense fallback={
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '50vh',
+        flexDirection: 'column',
+        gap: '1rem',
+        color: '#1976d2'
+      }}>
+        <div style={{ fontSize: '1.5rem' }}>Loading...</div>
+        <div style={{ 
+          width: '40px', 
+          height: '40px', 
+          border: '3px solid #e3f2fd',
+          borderRadius: '50%',
+          borderTopColor: '#1976d2',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <style jsx="true">{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    }>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -440,16 +455,15 @@ function AppLayout() {
         <Route path="/change-request" element={<ApplicantChangeRequestPage />} />
         <Route path="/change-approval" element={<ProgramOfficerApprovalPage />} />
         {/* These routes would be implemented later */}
-        <Route path="/settings" element={<div>System Settings (Coming Soon)</div>} />
-        <Route path="/transcripts" element={<div>Transcript Review (Coming Soon)</div>} />
-        <Route path="/reports" element={<div>Program Reports (Coming Soon)</div>} />
+        <Route path="/settings" element={<div className="text-container">System Settings (Coming Soon)</div>} />
+        <Route path="/transcripts" element={<div className="text-container">Transcript Review (Coming Soon)</div>} />
+        <Route path="/reports" element={<div className="text-container">Program Reports (Coming Soon)</div>} />
       </Routes>
     </Suspense>
   )
   
   return (
     <Layout 
-      sidebar={sidebarContent}
       content={mainContent}
       story={getStoryContent()}
     />
@@ -459,12 +473,9 @@ function AppLayout() {
 // Wrapper component that uses Router hooks
 function AppWrapper() {
   return (
-    <>
-      <h1 style={{ textAlign: 'center', margin: '1rem 0' }}>NSF GRFP Rapid Prototyping Framework</h1>
-      <ProcessStepProvider>
-        <AppLayout />
-      </ProcessStepProvider>
-    </>
+    <ProcessStepProvider>
+      <AppLayout />
+    </ProcessStepProvider>
   )
 }
 

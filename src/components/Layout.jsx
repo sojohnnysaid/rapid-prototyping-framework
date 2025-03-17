@@ -1,5 +1,6 @@
 // src/components/Layout.jsx
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import Sidebar from './Sidebar'
 
 // Footer component
 function Footer() {
@@ -13,13 +14,20 @@ function Footer() {
       backgroundColor: '#f9f9f9',
       textAlign: 'center',
       color: '#666',
-      fontSize: '0.9rem'
+      fontSize: '0.9rem',
+      width: '100%'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="wide-container">
         <div style={{ marginBottom: '1rem' }}>
           <strong>NSF GRFP Rapid Prototyping Framework</strong> - Prototype for NSF Graduate Research Fellowship Program
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '1.5rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '2rem', 
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap'
+        }}>
           <div>About</div>
           <div>Terms of Service</div>
           <div>Privacy Policy</div>
@@ -35,52 +43,106 @@ function Footer() {
   )
 }
 
-export default function Layout({ sidebar, content, story }) {
+export default function Layout({ sidebarContent, content, story }) {
+  // State for sidebar collapsed status
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  // Check if user has previously set a preference
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
+  
+  // Save sidebar state when it changes
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+  }, [sidebarCollapsed]);
+  
+  // Toggle sidebar collapsed state
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => !prev);
+  };
+
   return (
-    <div style={{ 
+    <div className="layout" style={{ 
       width: '100%', 
-      maxWidth: '1400px', 
-      margin: '0 auto', 
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column'
     }}>
       <div style={{ 
         display: 'flex', 
-        flexGrow: 1
+        flexGrow: 1,
+        position: 'relative',
+        height: '100%'
       }}>
-        {/* Sidebar - increased width */}
+        {/* Sidebar with collapsible state */}
         <nav style={{ 
-          width: '250px', 
-          minWidth: '250px', 
-          padding: '0.75rem', 
+          width: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)', 
+          minWidth: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)', 
           borderRight: '1px solid #ddd',
-          backgroundColor: '#f9f9f9'
+          backgroundColor: '#f9f9f9',
+          transition: 'width var(--transition-speed) ease, min-width var(--transition-speed) ease',
+          zIndex: 100,
+          height: '100%',
+          position: 'sticky',
+          top: 0,
+          overflowY: 'auto'
         }}>
-          {sidebar}
+          <Sidebar 
+            collapsed={sidebarCollapsed} 
+            onToggle={toggleSidebar}
+          />
         </nav>
 
-        {/* Main area: StoryGuide above main content */}
+        {/* Main content area */}
         <div style={{ 
           flexGrow: 1, 
-          padding: '1rem', 
+          padding: '1.5rem', 
           display: 'flex', 
-          flexDirection: 'column'
+          flexDirection: 'column',
+          transition: 'padding var(--transition-speed) ease',
+          width: '100%',
+          overflow: 'hidden'
         }}>
+          {/* Title bar for the page */}
+          <div style={{ 
+            marginBottom: '2rem',
+            display: 'flex',
+            justifyContent: 'center'
+          }}>
+            <h1 style={{ 
+              margin: 0,
+              fontSize: '1.5rem',
+              fontWeight: 'normal',
+              color: '#1976d2',
+              padding: 0
+            }}>
+              NSF Graduate Research Fellowship Program
+            </h1>
+          </div>
+          
           {/* If a story is provided, render it at the top */}
           {story && (
             <div style={{ 
               marginBottom: '1.5rem', 
               padding: '1.25rem', 
               border: '1px solid #2196f3', 
-              borderRadius: '6px',
-              background: '#f0f8ff',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              borderRadius: '8px',
+              background: 'linear-gradient(to right, #f0f8ff, #f5f9ff)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
             }}>
               {story}
             </div>
           )}
-          <div style={{ flexGrow: 1 }}>
+          
+          {/* Main content */}
+          <div style={{ 
+            flexGrow: 1,
+            animation: 'fadeIn 0.3s ease-in-out'
+          }}>
             {content}
           </div>
         </div>
