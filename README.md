@@ -1,12 +1,10 @@
-# NSF GRFP Rapid Prototyping Framework
+# Rapid Prototyping Framework
 
-A lightweight, story-driven framework for rapidly prototyping business processes and user interfaces for the National Science Foundation Graduate Research Fellowship Program (NSF GRFP).
-
-![NSF GRFP Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/NSF_logo.png/220px-NSF_logo.png)
+A lightweight, story-driven framework for rapidly prototyping business processes and user interfaces with multi-actor workflows.
 
 ## 🌟 Overview
 
-This framework enables designers and developers to quickly build functional prototypes that demonstrate end-to-end business processes for the NSF GRFP. It focuses on:
+This framework enables designers and developers to quickly build functional prototypes that demonstrate end-to-end business processes. It focuses on:
 
 - **Story-driven development**: Define processes as a series of intuitive steps
 - **Rapid UI prototyping**: Quickly create interfaces with minimal boilerplate
@@ -211,7 +209,7 @@ rapid-prototyping-framework/
 │   ├── mocks/             # Mock API services
 │   ├── stories/           # Business process implementations
 │   │   ├── auth/          # Authentication flows
-│   │   ├── eligibility/   # Eligibility process
+│   │   ├── change-request/# Change request process
 │   │   └── ...            # Other processes
 │   ├── router/            # Application routing
 │   ├── App.jsx            # Main application component
@@ -223,7 +221,7 @@ rapid-prototyping-framework/
 
 The framework includes several example stories:
 
-1. **Eligibility Screening**: Review and determine applicant eligibility
+1. **Change Request Process**: Submit and approve change requests
 2. **Reviewer Assignment**: Match reviewers to applications based on expertise
 3. **Multi-Actor Approval**: Coordinate approval workflows across roles
 
@@ -236,8 +234,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 This project is licensed under the ISC License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- National Science Foundation (NSF)
-- Graduate Research Fellowship Program (GRFP)
