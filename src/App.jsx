@@ -345,10 +345,9 @@ function AppLayout() {
   
   // Reset steps when location changes (route navigation)
   useEffect(() => {
-    // Only reset on actual route changes (not on initial render)
-    if (location.pathname) {
-      resetSteps();
-    }
+    // Always reset when the location changes
+    resetSteps();
+    console.log('Route changed, resetting steps to 0');
   }, [location.pathname, resetSteps])
   
   // Import the story content lazily
@@ -369,21 +368,29 @@ function AppLayout() {
   }, [location.pathname])
   
   // Determine which story to show based on the current path
-  const getStoryContent = () => {
+  const getCurrentStory = () => {
     if (location.pathname === '/eligibility') {
-      return <FloatingStoryGuide story={EligibilityStory} />
+      return EligibilityStory;
     } else if (location.pathname === '/reviewer-assignment' && reviewerAssignmentStory) {
-      return <FloatingStoryGuide story={reviewerAssignmentStory} />
+      return reviewerAssignmentStory;
     } else if (location.pathname === '/multi-actor-workflow') {
-      return <FloatingStoryGuide story={MultiActorApprovalWorkflowStory} />
+      return MultiActorApprovalWorkflowStory;
     } else if (location.pathname === '/users') {
-      return <FloatingStoryGuide story={UserManagementStory} />
+      return UserManagementStory;
     } else if (location.pathname === '/change-request') {
-      return <FloatingStoryGuide story={ChangeRequestStory} />
+      return ChangeRequestStory;
     } else if (location.pathname === '/change-approval') {
-      return <FloatingStoryGuide story={ChangeApprovalStory} />
+      return ChangeApprovalStory;
     }
     return null;
+  }
+  
+  // Get the current story object for this route
+  const currentStory = getCurrentStory();
+  
+  // Story content for the floating guide (optional component)
+  const getStoryContent = () => {
+    return currentStory ? <FloatingStoryGuide story={currentStory} /> : null;
   }
   
   // Lazy load components
@@ -466,6 +473,7 @@ function AppLayout() {
     <Layout 
       content={mainContent}
       story={getStoryContent()}
+      storyObject={currentStory}
     />
   )
 }

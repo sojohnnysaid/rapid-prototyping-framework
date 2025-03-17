@@ -5,7 +5,7 @@ import EligibilityScreening from '../stories/eligibility/EligibilityScreening'
 
 // A simple Home page
 function HomePage() {
-  return <div><h2>Welcome to the NSF GRFP Prototype</h2></div>
+  return <div><h2>Welcome to the PMCS|Lux Applicant Tracker</h2></div>
 }
 
 export default function AppRoutes() {

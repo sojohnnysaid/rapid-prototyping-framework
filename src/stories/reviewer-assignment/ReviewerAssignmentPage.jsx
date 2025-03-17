@@ -1,7 +1,7 @@
 /**
  * Reviewer Assignment Page
  * 
- * This page implements the business process for assigning reviewers to NSF GRFP applications.
+ * This page implements the business process for assigning reviewers to PMCS|Lux Applicant Tracker applications.
  * Following the defined steps:
  * 1. Load applications and reviewers
  * 2. Filter applications by field of study

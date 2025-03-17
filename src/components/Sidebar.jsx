@@ -2,6 +2,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import SidebarStoryGuide from './SidebarStoryGuide';
 
 // Icons for nav items (simple unicode/emoji for now)
 const icons = {
@@ -19,7 +20,7 @@ const icons = {
   logout: "🚪"
 };
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, story }) {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -88,15 +89,21 @@ export default function Sidebar({ collapsed, onToggle }) {
   // Logo/branding component
   const Logo = () => (
     <div className="sidebar-logo" style={{
-      padding: collapsed ? '1rem 0' : '1rem',
+      padding: '1rem',
       textAlign: 'center',
       fontWeight: 'bold',
-      fontSize: collapsed ? '1.2rem' : '1.4rem',
-      borderBottom: '1px solid #e0e0e0',
-      marginBottom: '1rem',
-      color: '#1976d2'
+      fontSize: '1.4rem',
+      borderBottom: collapsed ? 'none' : '1px solid #e0e0e0',
+      marginBottom: collapsed ? '30px' : '1rem',
+      color: '#1976d2',
+      display: 'block',
+      height: collapsed ? '0' : 'auto',
+      visibility: collapsed ? 'hidden' : 'visible',
+      opacity: collapsed ? '0' : '1',
+      overflow: 'hidden',
+      transition: 'visibility var(--transition-speed), opacity var(--transition-speed), height var(--transition-speed), margin var(--transition-speed)'
     }}>
-      {collapsed ? 'NSF' : 'NSF GRFP'}
+      PMCS|Lux
     </div>
   );
 
@@ -107,23 +114,29 @@ export default function Sidebar({ collapsed, onToggle }) {
       style={{
         position: 'absolute',
         top: '1rem',
-        right: collapsed ? '10px' : '-12px',
-        width: '24px',
-        height: '24px',
-        background: '#ffffff',
-        border: '1px solid #e0e0e0',
+        right: collapsed ? '13px' : '-16px',
+        width: '32px',
+        height: '32px',
+        background: '#2196f3',
+        border: '1px solid #1976d2',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         zIndex: 10,
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        transition: 'right var(--transition-speed) ease'
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+        transition: 'right var(--transition-speed) ease',
+        color: 'white',
+        fontSize: '16px',
+        fontWeight: 'bold'
       }}
       aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
     >
       {collapsed ? '→' : '←'}
+      <span className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: '0' }}>
+        {collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      </span>
     </button>
   );
 
@@ -276,14 +289,18 @@ export default function Sidebar({ collapsed, onToggle }) {
       position: 'relative',
       height: '100%',
       overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
       transition: 'padding var(--transition-speed) ease'
     }}>
       <ToggleButton />
       <Logo />
       
       <div style={{ 
-        padding: collapsed ? '0.5rem' : '1rem', 
-        transition: 'padding var(--transition-speed) ease'
+        padding: collapsed ? '0.5rem' : '1rem',
+        transition: 'padding var(--transition-speed) ease',
+        overflowY: 'auto',
+        flex: 1
       }}>
         <UserProfile />
         
@@ -293,7 +310,8 @@ export default function Sidebar({ collapsed, onToggle }) {
           margin: 0,
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem'
+          gap: '0.5rem',
+          marginBottom: '1rem'
         }}>
           {links.map(link => (
             <NavLink key={link.to} link={link} />
@@ -302,6 +320,9 @@ export default function Sidebar({ collapsed, onToggle }) {
           <LogoutButton />
         </ul>
       </div>
+      
+      {/* Story guide at the bottom of the sidebar - sticky position */}
+      <SidebarStoryGuide story={story} collapsed={collapsed} />
     </div>
   );
 }

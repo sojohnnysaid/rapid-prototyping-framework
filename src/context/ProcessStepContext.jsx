@@ -90,10 +90,13 @@ export function ProcessStepProvider({ children }) {
   // Reset all steps and triggers to initial state
   const resetSteps = useCallback(() => {
     // Use functional updates to avoid potential stale closures
-    setCurrentStepState(() => 0);
-    setCompletedSteps(() => [0]);
-    setActionableSteps(() => [0]);
-    setStepTriggers(() => ({}));
+    setCurrentStepState(0);
+    setCompletedSteps([0]); // Only first step is initially completed
+    setActionableSteps([0]); // Only first step is initially actionable
+    setStepTriggers({});
+    
+    // Log for debugging
+    console.log('Process steps reset to initial state');
   }, []);
   
   // Register a trigger for a specific step

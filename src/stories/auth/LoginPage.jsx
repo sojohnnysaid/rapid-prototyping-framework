@@ -33,13 +33,17 @@ export default function LoginPage() {
   return (
     <div style={{ 
       maxWidth: '400px', 
-      margin: '2rem auto', 
+      margin: '0 auto', 
       padding: '2rem',
       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
       borderRadius: '8px',
-      backgroundColor: 'white'
+      backgroundColor: 'white',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
     }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Login to NSF GRFP System</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Login to PMCS|Lux Applicant Tracker</h2>
       
       {error && (
         <div style={{ 

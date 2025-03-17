@@ -9,10 +9,12 @@
   - Business Rule: `npm run create-entity businessrule EligibilityCheck`
 - **Testing**: No test configuration yet (placeholder in package.json)
   - When implemented: `npm run test` (all tests), `npm run test:unit <path>` (single test)
+- **Lint/Format**: Not configured yet - consider adding ESLint/Prettier
 
 ## Code Style Guidelines
 - **React Patterns**: Functional components with hooks; composition over inheritance
-- **State**: React Context (global), useState/useEffect (local)
+- **State Management**: React Context (global), useState/useEffect (local)
+- **TypeScript**: Not currently used, but preferred for new features if added
 - **Formatting**: 2-space indent; single quotes; semicolons; 80-char line limit
 - **Naming**: camelCase (variables/functions); PascalCase (components/types); kebab-case (files)
 - **Imports**: Order: React/libraries → components → utils/hooks → styles

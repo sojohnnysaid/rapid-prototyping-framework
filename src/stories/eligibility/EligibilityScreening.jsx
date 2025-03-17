@@ -1,6 +1,6 @@
 // src/stories/eligibility/EligibilityScreening.jsx
 //
-// This file implements the Eligibility Screening business process for the NSF GRFP application.
+// This file implements the Eligibility Screening business process for the PMCS|Lux Applicant Tracker.
 // It demonstrates how to build a process-centric UI with guided steps and data manipulation.
 //
 // KEY CONCEPTS:

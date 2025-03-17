@@ -20,17 +20,33 @@ const ensureCompletionStep = (storySteps) => {
 
 // Filter out non-actionable steps from the story
 const filterNonActionableSteps = (steps) => {
+  // Return empty array if steps is undefined or null
+  if (!steps || !Array.isArray(steps)) {
+    return [];
+  }
+  
   // Remove "Wait for" steps that aren't actionable by users
   return steps.filter(step => !step.toLowerCase().startsWith('wait for'));
 };
 
-export default function StoryGuide({ story, compactMode = false }) {
+export default function StoryGuide({ story, compactMode = false, showStepList = false, onToggleExpand }) {
   // Use our custom hook for process steps
-  const { currentStep, setCurrentStep, isStepActionable, isStepTriggered, actionableSteps } = useProcessSteps();
+  const { currentStep, setCurrentStep, isStepActionable, isStepTriggered, actionableSteps, completedSteps } = useProcessSteps();
   // State to track if the guide is expanded to show all steps
-  const [expanded, setExpanded] = useState(false)
+  // Use showStepList prop when provided, otherwise use internal state
+  const [internalExpanded, setInternalExpanded] = useState(false)
+  const expanded = showStepList !== undefined ? showStepList : internalExpanded;
 
+  // Handle case where story is not provided or doesn't have the expected structure
   if (!story) return <p>No business rule instructions available.</p>
+  if (!story.steps) {
+    // If story exists but doesn't have steps, create a default structure
+    story = {
+      ...story,
+      title: story.title || 'Story Guide',
+      steps: []
+    };
+  }
   
   // Filter out non-actionable steps first
   const actionableOnlySteps = filterNonActionableSteps(story.steps);
@@ -44,11 +60,16 @@ export default function StoryGuide({ story, compactMode = false }) {
     steps: enhancedSteps 
   };
   
-  // Check if we're at the completion step
-  const isCompleted = currentStep === enhancedSteps.length - 1;
+  // Check if we're at the completion step, but only if we've gone through all the steps
+  // We don't want to show completed if the story just loaded and there are no steps
+  const isCompleted = currentStep === enhancedSteps.length - 1 && 
+                    enhancedSteps.length > 1 && 
+                    completedSteps.length === enhancedSteps.length;
   
-  // Progress percentage for the progress bar
-  const progressPercentage = (currentStep / (enhancedSteps.length - 1)) * 100
+  // Progress percentage for the progress bar - ensure we don't divide by zero
+  const progressPercentage = enhancedSteps.length <= 1 
+    ? 0 
+    : (currentStep / (enhancedSteps.length - 1)) * 100
   
   // Journey completion UI - shown at the completion step
   const JourneyCompletionUI = () => {
@@ -132,7 +153,7 @@ export default function StoryGuide({ story, compactMode = false }) {
         <h3 style={{ 
           margin: '0 0 1rem 0', 
           color: '#2e7d32',
-          fontSize: '1.5rem'
+          fontSize: '0.65em'
         }}>
           User Journey Completed!
         </h3>
@@ -180,85 +201,74 @@ export default function StoryGuide({ story, compactMode = false }) {
     );
   };
 
-  // Create a compact version for the footer
+  // Create a compact version for the sidebar
   const compactContent = () => (
     <div className="compact-story-guide">
+      {/* Smaller, more compact layout for sidebar */}
       <div style={{ 
         display: 'flex',
         alignItems: 'center',
-        gap: '0.75rem'
+        gap: '0.5rem',
+        fontSize: '0.68em', // Smaller overall font size
+        backgroundColor: isCompleted ? 'rgba(76, 175, 80, 0.08)' : 'rgba(33, 150, 243, 0.08)',
+        padding: '0.5rem',
+        borderRadius: '4px',
+        transition: 'background-color 0.3s ease'
       }}>
-        {/* Simplified title */}
-        <div style={{ 
-          fontWeight: 'bold', 
-          color: '#1565c0', 
-          fontSize: '0.9rem',
+        {/* Step badge */}
+        <span style={{ 
+          display: 'inline-block', 
+          minWidth: '20px', 
+          height: '20px', 
+          borderRadius: '50%', 
+          backgroundColor: isCompleted ? '#4caf50' : '#2196f3', 
+          color: 'white',
+          textAlign: 'center',
+          lineHeight: '20px',
+          fontSize: '0.7rem',
+          fontWeight: 'bold',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+        }}>
+          {currentStep + 1}
+        </span>
+        
+        {/* Current step text */}
+        <span style={{ 
+          fontWeight: 'bold',
+          fontSize: '0.68em',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: '150px'
+          flexGrow: 1,
+          color: isCompleted ? '#2e7d32' : '#1565c0'
         }}>
-          {enhancedStory.title}:
-        </div>
-        
-        {/* Current step info */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          flexGrow: 1
-        }}>
-          {/* Step badge */}
-          <span style={{ 
-            display: 'inline-block', 
-            width: '20px', 
-            height: '20px', 
-            borderRadius: '50%', 
-            backgroundColor: isCompleted ? '#4caf50' : '#2196f3', 
-            color: 'white',
-            textAlign: 'center',
-            lineHeight: '20px',
-            fontSize: '0.75rem',
-            fontWeight: 'bold'
-          }}>
-            {currentStep + 1}
-          </span>
-          
-          {/* Step text */}
-          <span style={{ 
-            fontWeight: 'bold',
-            fontSize: '0.85rem',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            flexGrow: 1
-          }}>
-            {enhancedSteps[currentStep]}
-          </span>
-        </div>
+          {enhancedSteps[currentStep]}
+        </span>
         
         {/* Progress indicator */}
         <div style={{
           backgroundColor: isCompleted ? '#e8f5e9' : '#e3f2fd',
-          padding: '3px 8px',
-          borderRadius: '12px',
-          fontSize: '0.75rem',
+          padding: '2px 6px',
+          borderRadius: '10px',
+          fontSize: '0.65em',
           color: isCompleted ? '#2e7d32' : '#2196f3',
           fontWeight: 'bold',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'nowrap',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
         }}>
-          {isCompleted ? 'Completed' : `${currentStep + 1}/${enhancedSteps.length - 1}`}
+          {isCompleted ? 'Done' : `${currentStep + 1}/${Math.max(1, enhancedSteps.length - 1)}`}
         </div>
       </div>
       
       {/* Compact progress bar */}
       <div style={{ 
-        marginTop: '0.5rem',
         height: '4px', 
         backgroundColor: '#e0e0e0', 
         borderRadius: '2px',
         overflow: 'hidden',
-        position: 'relative'
+        position: 'relative',
+        marginTop: '0.5rem',
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
       }}>
         <div style={{ 
           width: `${progressPercentage}%`, 
@@ -283,47 +293,116 @@ export default function StoryGuide({ story, compactMode = false }) {
           }} />
         </div>
       </div>
+      
+      {/* Step List - shown when expanded or when showStepList is true */}
+      {(expanded || showStepList) && (
+        <div style={{ 
+          marginTop: '0.75rem',
+          backgroundColor: 'white',
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px',
+          maxHeight: '200px',
+          overflowY: 'auto',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          fontSize: '0.65em'
+        }}>
+          {enhancedSteps.map((step, index) => {
+            const isActiveStep = index === currentStep;
+            const stepEnabled = actionableSteps.includes(index) || index === currentStep;
+            const isLastStep = index === enhancedSteps.length - 1;
+            
+            return (
+              <div 
+                key={index} 
+                onClick={() => stepEnabled && !isLastStep ? setCurrentStep(index) : null}
+                style={{
+                  padding: '0.5rem 0.75rem',
+                  borderBottom: index < enhancedSteps.length - 1 ? '1px solid #f0f0f0' : 'none',
+                  backgroundColor: isActiveStep ? '#e3f2fd' : (stepEnabled ? 'white' : '#f9f9f9'),
+                  opacity: stepEnabled || isLastStep ? 1 : 0.6,
+                  cursor: stepEnabled && !isLastStep ? 'pointer' : 'default',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'background-color 0.2s ease'
+                }}
+              >
+                <span style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  backgroundColor: isActiveStep ? '#2196f3' : 
+                                  isLastStep && isCompleted ? '#4caf50' : 
+                                  stepEnabled ? '#bbdefb' : '#e0e0e0',
+                  color: isActiveStep || (isLastStep && isCompleted) ? 'white' : '#757575',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.65rem',
+                  fontWeight: 'bold'
+                }}>
+                  {index + 1}
+                </span>
+                <span style={{
+                  fontSize: compactMode ? '0.65em' : '0.75em',
+                  color: isActiveStep ? '#1565c0' : 
+                        isLastStep && isCompleted ? '#2e7d32' : 
+                        stepEnabled ? '#424242' : '#757575',
+                  fontWeight: isActiveStep ? 'bold' : 'normal',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {step}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 
   // Regular full version
   const fullContent = () => (
     <div className="full-story-guide">
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '0.75rem'
-      }}>
-        <h3 style={{ margin: 0 }}>{enhancedStory.title}</h3>
-        {!isCompleted && (
-          <button 
-            onClick={() => setExpanded(!expanded)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#2196f3',
-              fontSize: '0.9rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            {expanded ? (
-              <>
-                <span>Collapse</span>
-                <span style={{ fontSize: '1.2rem' }}>▲</span>
-              </>
-            ) : (
-              <>
-                <span>Show All Steps</span>
-                <span style={{ fontSize: '1.2rem' }}>▼</span>
-              </>
-            )}
-          </button>
-        )}
-      </div>
+      {/* Only show toggle button when not controlled externally via showStepList prop */}
+      {!showStepList && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          alignItems: 'center',
+          marginBottom: '0.75rem'
+        }}>
+          {!isCompleted && (
+            <button 
+              onClick={() => onToggleExpand ? onToggleExpand() : setInternalExpanded(!internalExpanded)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#2196f3',
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              {expanded ? (
+                <>
+                  <span>Collapse</span>
+                  <span style={{ fontSize: '1.2rem' }}>▲</span>
+                </>
+              ) : (
+                <>
+                  <span>Show All Steps</span>
+                  <span style={{ fontSize: '1.2rem' }}>▼</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
       
       {/* Enhanced progress bar with animations */}
       <div style={{ 
@@ -389,7 +468,7 @@ export default function StoryGuide({ story, compactMode = false }) {
           {/* Step display: either just current step or all steps */}
           {expanded ? (
             // Show all steps when expanded
-            <ol style={{ paddingLeft: '1.5rem', margin: '1rem 0' }}>
+            <ol style={{ paddingLeft: '1.5rem', margin: '1rem 0', fontSize: '0.65em' }}>
               {enhancedSteps.map((step, index) => {
                 // Determine step status
                 const stepActionable = actionableSteps.includes(index);
@@ -419,7 +498,7 @@ export default function StoryGuide({ story, compactMode = false }) {
                       {/* Triggered status */}
                       {!isLastStep && (
                         <span style={{ 
-                          fontSize: '0.7rem', 
+                          fontSize: '0.65em', 
                           color: isTriggered ? '#4caf50' : '#f44336',
                           backgroundColor: isTriggered ? '#e8f5e9' : '#ffebee',
                           padding: '1px 6px',
@@ -429,7 +508,7 @@ export default function StoryGuide({ story, compactMode = false }) {
                           gap: '3px'
                         }}>
                           <span style={{ 
-                            fontSize: '0.7rem',
+                            fontSize: '0.65em',
                             lineHeight: 1
                           }}>
                             {isTriggered ? '✓' : '✗'}
@@ -441,7 +520,7 @@ export default function StoryGuide({ story, compactMode = false }) {
                       {/* Actionable status */}
                       {stepActionable && !isLastStep && (
                         <span style={{ 
-                          fontSize: '0.7rem', 
+                          fontSize: '0.65em', 
                           color: '#2196f3',
                           backgroundColor: '#e3f2fd',
                           padding: '1px 6px',

@@ -19,7 +19,7 @@ function Footer() {
     }}>
       <div className="wide-container">
         <div style={{ marginBottom: '1rem' }}>
-          <strong>NSF GRFP Rapid Prototyping Framework</strong> - Prototype for NSF Graduate Research Fellowship Program
+          <strong>PMCS|Lux Applicant Tracker</strong> - Rapid Prototyping Framework
         </div>
         <div style={{ 
           display: 'flex', 
@@ -35,15 +35,15 @@ function Footer() {
           <div>Help</div>
         </div>
         <div>
-          <p>&copy; {currentYear} National Science Foundation. All rights reserved.</p>
-          <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>This is a prototype application and does not represent an official NSF system.</p>
+          <p>&copy; {currentYear} PMCS|Lux. All rights reserved.</p>
+          <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>This is a prototype application for the Applicant Tracking System.</p>
         </div>
       </div>
     </footer>
   )
 }
 
-export default function Layout({ sidebarContent, content, story }) {
+export default function Layout({ sidebarContent, content, story, storyObject }) {
   // State for sidebar collapsed status
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
@@ -94,6 +94,7 @@ export default function Layout({ sidebarContent, content, story }) {
           <Sidebar 
             collapsed={sidebarCollapsed} 
             onToggle={toggleSidebar}
+            story={storyObject}
           />
         </nav>
 
@@ -107,36 +108,38 @@ export default function Layout({ sidebarContent, content, story }) {
           width: '100%',
           overflow: 'hidden'
         }}>
-          {/* Title bar for the page */}
+          {/* Title bar for the page - positioned absolutely to center across entire viewport */}
           <div style={{ 
+            position: 'absolute',
+            top: '1.5rem',
+            left: '0',
+            right: '0',
             marginBottom: '2rem',
             display: 'flex',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            zIndex: '5'
           }}>
             <h1 style={{ 
-              margin: 0,
-              fontSize: '1.5rem',
-              fontWeight: 'normal',
+              margin: '0 auto',
+              fontSize: '1.8rem',
+              fontWeight: 'bold',
               color: '#1976d2',
-              padding: 0
+              padding: '0.5rem 0',
+              borderBottom: '2px solid #e3f2fd',
+              width: 'fit-content',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              paddingLeft: '1rem',
+              paddingRight: '1rem',
+              borderRadius: '4px'
             }}>
-              NSF Graduate Research Fellowship Program
+              PMCS|Lux Applicant Tracker
             </h1>
           </div>
           
-          {/* If a story is provided, render it at the top */}
-          {story && (
-            <div style={{ 
-              marginBottom: '1.5rem', 
-              padding: '1.25rem', 
-              border: '1px solid #2196f3', 
-              borderRadius: '8px',
-              background: 'linear-gradient(to right, #f0f8ff, #f5f9ff)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-            }}>
-              {story}
-            </div>
-          )}
+          {/* Spacer to compensate for the absolute positioning of the title */}
+          <div style={{ marginTop: '3.5rem' }}></div>
           
           {/* Main content */}
           <div style={{ 
