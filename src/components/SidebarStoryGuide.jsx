@@ -36,48 +36,59 @@ export default function SidebarStoryGuide({ story, collapsed }) {
       style={{ 
         position: 'fixed', 
         bottom: '48px',
-        left: '25px',
-        right: 0,
-        padding: collapsed ? '0.5rem' : '0.75rem',
-        borderTop: '1px solid #e0e0e0',
+        ...(collapsed 
+          ? {
+              right: '25px',
+              left: 'auto',
+              borderRadius: '8px',
+              border: '1px solid #e0e0e0'
+            } 
+          : {
+              left: '25px',
+              right: 0
+            }
+        ),
+        padding: '0.75rem',
+        borderTop: collapsed ? 'none' : '1px solid #e0e0e0',
         backgroundColor: '#f0f8ff',
-        maxWidth: collapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
+        width: '250px',  /* Fixed width that matches the sidebar width */
+        minWidth: '250px',
+        maxWidth: '250px',
         boxSizing: 'border-box',
-        transition: 'padding var(--transition-speed) ease, max-width var(--transition-speed) ease',
-        boxShadow: '0 -2px 6px rgba(0,0,0,0.08)',
+        transition: 'left var(--transition-speed) ease, right var(--transition-speed) ease',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
         zIndex: 10
       }}
     >
       <div 
-        onClick={!collapsed ? toggleExpanded : undefined}
+        onClick={toggleExpanded}
         style={{ 
           fontSize: '0.68em', 
           fontWeight: 'bold',
           color: '#1976d2',
           marginBottom: '0.5rem',
-          opacity: collapsed ? 0 : 1,
-          height: collapsed ? '0' : 'auto',
+          opacity: 1,
           overflow: 'hidden',
-          transition: 'opacity var(--transition-speed) ease, height var(--transition-speed) ease',
+          transition: 'opacity var(--transition-speed) ease',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          cursor: collapsed ? 'default' : 'pointer'
+          cursor: 'pointer'
         }}
       >
         <span>{validStory.title}</span>
-        {!collapsed && (
-          <span style={{ fontSize: '0.65em' }}>
-            {expanded ? '▲ Collapse' : '▼ View Steps'}
-          </span>
-        )}
+        <span style={{ fontSize: '0.65em', marginLeft: '0.5rem' }}>
+          {expanded ? '▲ Collapse' : '▼ View Steps'}
+        </span>
       </div>
-      <StoryGuide 
-        story={validStory} 
-        compactMode={!expanded} 
-        showStepList={expanded} 
-        onToggleExpand={toggleExpanded}
-      />
+      <div style={{ width: '100%' }}>
+        <StoryGuide 
+          story={validStory} 
+          compactMode={!expanded} 
+          showStepList={expanded} 
+          onToggleExpand={toggleExpanded}
+        />
+      </div>
     </div>
   );
 }
