@@ -8,10 +8,10 @@
 export const ChangeRequestStory = {
   title: 'Change Request Workflow',
   steps: [
-    'Fill out change request form',
-    'Submit change request for approval',
-    'View approval status',
-    'Implement approved changes'
+    'Load applicants',
+    'Select an applicant',
+    'Submit status change request',
+    'User Journey Completed'
   ]
 }
 

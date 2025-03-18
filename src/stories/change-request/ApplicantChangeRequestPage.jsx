@@ -110,15 +110,15 @@ export default function ApplicantChangeRequestPage() {
     setCurrentStep(2);
   };
   
-  // Step 3: Show the change request form
+  // Show the change request form modal for step 3
   const openChangeRequestForm = () => {
     setShowModal(true);
-    // Since the form is now step 2 after removing Wait step
+    // Move to step 3 - filling out the form
     markStepActionable(2);
     setCurrentStep(2);
   };
   
-  // Step 4: Submit change request
+  // Submit change request - completes the process
   const handleSubmitChangeRequest = async (e) => {
     e.preventDefault();
     
@@ -180,15 +180,12 @@ export default function ApplicantChangeRequestPage() {
         requestedValue: ''
       });
       
-      // Make the completion step actionable once we've submitted the request
-      // Since we removed 'Wait for program officer review', we now go to step 3 then completion
-      markStepActionable(3); // View approval status
-      markStepActionable(4); // Complete journey step
+      // Mark the final step as completed
+      // The Form component will automatically activate the step trigger
+      // but we also need to update the current step to show completion
+      setCurrentStep(3); // Move to a "completed" state (beyond the last step)
       
-      // Advance to step 3 (skipping the removed "Wait for" step)
-      setCurrentStep(3);
-      
-      // Fetch my current change requests
+      // Automatically fetch change requests to show the newly submitted one
       fetchMyChangeRequests();
     } catch (err) {
       console.error('Error submitting change request:', err);
@@ -354,7 +351,7 @@ export default function ApplicantChangeRequestPage() {
       {/* Step 2: Select an applicant */}
       {applicants.length > 0 && (
         <StepSection stepNumber={1}>
-          <StepHeader stepNumber={2} title="Select an applicant" />
+          <StepHeader stepNumber={2} title={ChangeRequestStory.steps[1]} />
           <div style={{ marginTop: '1rem' }}>
             <Table 
               data={applicants}
@@ -366,10 +363,10 @@ export default function ApplicantChangeRequestPage() {
         </StepSection>
       )}
       
-      {/* Step 2: Fill out change request details */}
+      {/* Step 3: Submit status change request */}
       {selectedApplicant && (
         <StepSection stepNumber={2}>
-          <StepHeader stepNumber={3} title={ChangeRequestStory.steps[0]} />
+          <StepHeader stepNumber={3} title={ChangeRequestStory.steps[2]} />
           <div style={{ marginTop: '1rem' }}>
             <h3>Selected Applicant: {selectedApplicant.name}</h3>
             <p>Applicant ID: <strong>{selectedApplicant.id}</strong></p>
@@ -393,36 +390,70 @@ export default function ApplicantChangeRequestPage() {
         </StepSection>
       )}
       
-      {/* Step 3: View your change requests */}
-      {currentStep >= 2 && (
+      {/* Step 4: User Journey Completion - shows when the final step is triggered */}
+      {currentStep >= 3 && (
         <StepSection stepNumber={3}>
-          <StepHeader stepNumber={4} title={ChangeRequestStory.steps[2]} />
-          <div style={{ marginTop: '1rem' }}>
-            <button
-              onClick={fetchMyChangeRequests}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#2196f3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                marginBottom: '1rem'
-              }}
-            >
-              View My Change Requests
-            </button>
-            
-            {changeRequests.length > 0 ? (
-              <Table
-                data={changeRequests}
-                columns={changeRequestColumns}
-              />
-            ) : (
-              <p>No change requests found.</p>
-            )}
+          <StepHeader stepNumber={4} title={ChangeRequestStory.steps[3]} />
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            backgroundColor: '#e8f5e9',
+            borderRadius: '8px',
+            border: '1px solid #c8e6c9'
+          }}>
+            <h3 style={{ color: '#2e7d32' }}>Success</h3>
+            <p>Your change request has been successfully submitted and is awaiting approval.</p>
+            <p style={{ fontWeight: 'bold' }}>What happens next?</p>
+            <ol>
+              <li>Program Officers will review your request</li>
+              <li>You will be notified when a decision is made</li>
+              <li>You can track the status of your request below</li>
+            </ol>
           </div>
         </StepSection>
+      )}
+
+      {/* Display submitted change requests (now part of the completion flow) */}
+      {successMessage && (
+        <div style={{ 
+          marginTop: '2rem',
+          padding: '1.5rem',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '8px',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3>Your Submitted Change Requests</h3>
+          <p>You can view the status of your change requests below.</p>
+          
+          <button
+            onClick={fetchMyChangeRequests}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#2196f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginBottom: '1rem',
+              marginTop: '0.5rem'
+            }}
+          >
+            Refresh Change Requests
+          </button>
+          
+          {changeRequests.length > 0 ? (
+            <Table
+              data={changeRequests}
+              columns={changeRequestColumns}
+            />
+          ) : (
+            <p>No change requests found.</p>
+          )}
+          
+          <div style={{ marginTop: '1rem', color: '#757575', fontSize: '0.9rem' }}>
+            <p>Note: Program Officers will review your requests and take appropriate actions.</p>
+          </div>
+        </div>
       )}
       
       {/* Change Request Modal */}
@@ -432,7 +463,14 @@ export default function ApplicantChangeRequestPage() {
             <h3>Submit Change Request</h3>
             <p>For applicant: <strong>{selectedApplicant.name}</strong> (ID: <strong>{selectedApplicant.id}</strong>)</p>
             
-            <Form onSubmit={handleSubmitChangeRequest} autoComplete="off">
+            <Form 
+              onSubmit={handleSubmitChangeRequest} 
+              autoComplete="off"
+              stepTrigger={2}
+              isRequired={true}
+              formState={formData}
+              validateOnChange={false}
+            >
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem' }}>
                   Request Title:
